@@ -1,0 +1,94 @@
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// --- Inisialisasi DS18B20 ---
+#define ONE_WIRE_BUS 5
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+
+// --- Inisialisasi MQ135 ---
+#define MQ135_PIN 4  // Gunakan pin analog ESP32
+
+// --- Inisialisasi sensor pH ---
+#define PH_SENSOR_PIN 34
+float calibration_value = 21.34 + 1.5;
+int buffer_arr[10], temp;
+float ph_act;
+
+// --- Inisialisasi LCD ---
+LiquidCrystal_I2C lcd(0x27, 16, 2);  // Ganti alamat jika perlu
+
+void setup() {
+  Serial.begin(115200);
+  sensors.begin();
+  lcd.init();
+  lcd.backlight();
+
+  lcd.setCursor(0, 0);
+  lcd.print("Suhu AQ pH Ready");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+  // --- Baca suhu ---
+  sensors.requestTemperatures();
+  float tempC = sensors.getTempCByIndex(0);
+
+  // --- Baca kualitas udara dari MQ135 ---
+  int mq135Value = analogRead(MQ135_PIN);
+
+  // --- Baca pH ---
+  for (int i = 0; i < 10; i++) {
+    buffer_arr[i] = analogRead(PH_SENSOR_PIN);
+    delay(30);
+  }
+
+  for (int i = 0; i < 9; i++) {
+    for (int j = i + 1; j < 10; j++) {
+      if (buffer_arr[i] > buffer_arr[j]) {
+        temp = buffer_arr[i];
+        buffer_arr[i] = buffer_arr[j];
+        buffer_arr[j] = temp;
+      }
+    }
+  }
+
+  unsigned long avgval = 0;
+  for (int i = 2; i < 8; i++) avgval += buffer_arr[i];
+
+  float volt = (float)avgval * 3.3 / 4095.0 / 6.0;
+  ph_act = -5.70 * volt + calibration_value;
+
+  // --- Tampilkan di Serial Monitor ---
+  Serial.print("Temp: ");
+  Serial.print(tempC);
+  Serial.println(" *C");
+
+  Serial.print("MQ135: ");
+  Serial.println(mq135Value);
+
+  Serial.print("pH: ");
+  Serial.println(ph_act, 2);
+
+  // --- Tampilkan di LCD (bergantian) ---
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("T:");
+  lcd.print(tempC, 1);
+  lcd.print((char)223);  // simbol derajat
+  lcd.print("C AQ:");
+  lcd.print(mq135Value);
+
+  delay(2000);
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("pH Value:");
+  lcd.setCursor(0, 1);
+  lcd.print(ph_act, 2);
+
+  delay(2000);
+}
