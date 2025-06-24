@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include <HardwareSerial.h>
 
 // Inisialisasi LCD I2C (alamat umum 0x27, bisa 0x3F tergantung modul)
 LiquidCrystal_I2C lcd(0x27, 16, 2);

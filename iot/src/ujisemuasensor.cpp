@@ -46,6 +46,7 @@ void loop() {
     delay(30);
   }
 
+  // Urutkan data untuk median
   for (int i = 0; i < 9; i++) {
     for (int j = i + 1; j < 10; j++) {
       if (buffer_arr[i] > buffer_arr[j]) {
@@ -73,21 +74,17 @@ void loop() {
   Serial.print("pH: ");
   Serial.println(ph_act, 2);
 
-  // --- Tampilkan di LCD (bergantian) ---
+  // --- Tampilkan semua di LCD sekaligus ---
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("T:");
   lcd.print(tempC, 1);
   lcd.print((char)223);  // simbol derajat
-  lcd.print("C AQ:");
+  lcd.print(" AQ:");
   lcd.print(mq135Value);
 
-  delay(2000);
-
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("pH Value:");
   lcd.setCursor(0, 1);
+  lcd.print("pH: ");
   lcd.print(ph_act, 2);
 
   delay(2000);
