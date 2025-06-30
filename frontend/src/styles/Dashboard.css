@@ -1,0 +1,174 @@
+/* === DASHBOARD === */
+.dashboard-container {
+  display: flex;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo {
+  margin-top: 16px;
+  height: 165px;
+  width: auto;
+}
+
+.dashboard-main {
+  margin-left: 240px;
+  padding: 2rem;
+  background-color: #fff;
+  flex: 1;
+}
+
+.dashboard-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 97%;
+  height: 80px;
+  background-color: #00487C;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  z-index: 10;
+}
+
+.dashboard-header h2 {
+  font-size: 2rem;
+  font-weight: normal;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.dashboard-user {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.9rem;
+  gap: 4px;
+}
+
+.logout-button {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.logout-button:hover {
+  background-color: #e63946;
+}
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 1.5rem;
+  justify-items: center;
+  margin-top: 30px;
+}
+
+.card {
+  background-color: #00487C;
+  color: white;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+  width: 200px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
+
+.icon {
+  width: 70px;
+  height: 70px;
+  margin-bottom: 0.5rem;
+}
+
+.card h3 {
+  margin: 0.5rem 0 0.3rem;
+  font-size: 1.1rem;
+}
+
+.card p {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #FF6B35;
+  margin: 0.3rem 0;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+
+/* === SETTING === */
+.setting-section {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-top: 1.5rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+.setting-section h4 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: #00487C;
+}
+
+.setting-section label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.setting-section input[type="text"],
+.setting-section input[type="email"],
+.setting-section input[type="number"],
+.setting-section select {
+  padding: 6px 10px;
+  width: 100%;
+  max-width: 300px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  margin-top: 4px;
+}
+
+.setting-section input[type="checkbox"],
+.setting-section input[type="radio"] {
+  margin-right: 8px;
+}
+
+button {
+  background-color: #00487C;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #003060;
+}
