@@ -1,0 +1,48 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+
+// Ganti dengan WiFi kamu
+const char* ssid = "UPB 2";
+const char* password = "Kompetitif1";
+
+// Ganti dengan URL backend kamu
+const char* serverUrl = "http://your-server.com/api/data";
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+  
+  // Tunggu koneksi
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("WiFi Terhubung!");
+}
+
+void loop() {
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+
+    http.begin(serverUrl);
+    http.addHeader("Content-Type", "application/json");
+
+    // Contoh data yang dikirim
+    String jsonData = "{\"suhu\": 27.5, \"ph\": 6.8}";
+
+    int httpResponseCode = http.POST(jsonData);
+
+    if (httpResponseCode > 0) {
+      String response = http.getString();
+      Serial.println("Response dari server:");
+      Serial.println(response);
+    } else {
+      Serial.print("Error kirim data. Kode: ");
+      Serial.println(httpResponseCode);
+    }
+
+    http.end();
+  }
+
+  delay(10000); // Kirim setiap 10 detik
+}
