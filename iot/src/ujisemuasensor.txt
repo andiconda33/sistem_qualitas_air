@@ -2,6 +2,8 @@
 #include <DallasTemperature.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include <WiFi.h>
+#include <HTTPClient.h> // Pastikan library ini sudah terinstall di Arduino IDE
 
 // --- Inisialisasi DS18B20 ---
 #define ONE_WIRE_BUS 5
@@ -9,7 +11,7 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
 // --- Inisialisasi MQ135 ---
-#define MQ135_PIN 4  // Gunakan pin analog ESP32
+#define MQ135_PIN 35  // Gunakan pin analog ESP32
 
 // --- Inisialisasi sensor pH ---
 #define PH_SENSOR_PIN 34
@@ -20,6 +22,14 @@ float ph_act;
 // --- Inisialisasi LCD ---
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // Ganti alamat jika perlu
 
+// --- Konfigurasi WiFi ---
+const char* ssid = "AndiHome";
+const char* password = "12345678";
+
+// --- Alamat server API ---
+const char* serverName = "http://localhost:2518/api/data-sensor/send";
+const char* id_sensor = "esp32_01"; // Ganti sesuai kebutuhan
+
 void setup() {
   Serial.begin(115200);
   sensors.begin();
@@ -29,6 +39,19 @@ void setup() {
   lcd.setCursor(0, 0);
   lcd.print("Suhu AQ pH Ready");
   delay(2000);
+  lcd.clear();
+
+  // Koneksi WiFi
+  WiFi.begin(ssid, password);
+  lcd.setCursor(0, 1);
+  lcd.print("WiFi Connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+  }
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("WiFi Connected");
+  delay(1000);
   lcd.clear();
 }
 
@@ -73,6 +96,25 @@ void loop() {
 
   Serial.print("pH: ");
   Serial.println(ph_act, 2);
+
+  // --- Kirim data ke server via HTTP GET ---
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    String url = String(serverName) +
+      "?id_sensor=" + id_sensor +
+      "&temperature=" + String(tempC, 2) +
+      "&amonia=" + String(mq135Value) +
+      "&ph=" + String(ph_act, 2);
+
+    http.begin(url);
+    int httpResponseCode = http.GET();
+    http.end();
+    // (Opsional) tampilkan status pengiriman di Serial
+    Serial.print("HTTP Response code: ");
+    Serial.println(httpResponseCode);
+  } else {
+    Serial.println("WiFi Disconnected!");
+  }
 
   // --- Tampilkan semua di LCD sekaligus ---
   lcd.clear();

@@ -8,7 +8,7 @@
 // --- Konfigurasi WiFi dan MQTT ---
 const char* ssid = "AndiHome";
 const char* password = "12345678";
-const char* mqtt_server = "broker.emqx.io";
+const char* mqtt_server = "test.mosquitto.org";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -69,8 +69,8 @@ void reconnect() {
     clientId += String(random(0xffff), HEX);
     if (client.connect(clientId.c_str())) {
       Serial.println("connected");
-      client.publish("upb/data/345267189287", "Connected");
-      client.subscribe("upb/data/345267189287");
+      client.publish("sensor/data/lele", "Connected");
+      client.subscribe("sensor/data/lele");
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -169,9 +169,15 @@ String tempStr = String(tempC, 2);
 String phStr = String(ph_act, 2);
 String aqStr = String(mq135Value); // nilai integer, tidak perlu desimal
 
-client.publish("upb/data/345267189287/temp", tempStr.c_str(), true);
-client.publish("upb/data/345267189287/ph", phStr.c_str(), true);
-client.publish("upb/data/345267189287/aq", aqStr.c_str(), true);
+//client.publish("sensor/data/lele", tempStr.c_str(), true);
+//client.publish("sensor/data/lele", phStr.c_str(), true);
+//client.publish("sensor/data/lele", aqStr.c_str(), true);
 
+String jsonData = "{";
+jsonData += "\"ph\":" + String(ph_act, 2) + ",";
+jsonData += "\"suhu\":" + String(tempC, 2) + ",";
+jsonData += "\"amonia\":" + String(mq135Value);
+jsonData += "}";
+client.publish("sensor/data/lele", jsonData.c_str(), true);
   }
 }
