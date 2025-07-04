@@ -17,10 +17,10 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         
         <Route element={<Layout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/menu-chart" element={<MenuChart />} />
-          <Route path="/data-record" element={<DataRecord />} />
-          <Route path="/setting" element={<Setting />} />
+          <Route path="/dashboard" element={<Dashboard/>} />
+          <Route path="/menu-chart" element={<MenuChart/>} />
+          <Route path="/data-record" element={<DataRecord/>} />
+          <Route path="/setting" element={<Setting/>} />
         </Route>
       </Routes>
     </Router>
