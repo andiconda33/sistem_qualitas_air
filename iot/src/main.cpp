@@ -99,6 +99,13 @@ void setup() {
 
 // --- Loop utama ---
 void loop() {
+  // Cek koneksi WiFi
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi disconnected, reconnecting...");
+    setup_wifi();
+  }
+
+  // MQTT client
   if (!client.connected()) {
     reconnect();
   }

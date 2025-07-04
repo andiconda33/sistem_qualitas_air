@@ -23,7 +23,6 @@ const hourData = [
   { tanggal: "2025-06-20", time: '17:00', ph: 7.5, suhu: 29, amonia: 0.6 },
   { tanggal: "2025-06-20", time: '20:00', ph: 7.0, suhu: 28, amonia: 0.4 },
   { tanggal: "2025-06-20", time: '23:00', ph: 7.1, suhu: 27, amonia: 0.3 },
-
   { tanggal: "2025-06-21", time: '02:00', ph: 7.2, suhu: 28, amonia: 0.5 },
   { tanggal: "2025-06-21", time: '05:00', ph: 7.3, suhu: 29, amonia: 0.6 },
   { tanggal: "2025-06-21", time: '08:00', ph: 7.4, suhu: 30, amonia: 0.7 },
