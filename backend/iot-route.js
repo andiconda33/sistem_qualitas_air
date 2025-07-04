@@ -29,7 +29,7 @@ app.get('/api/data-sensor/send', (req, res) => {
 
   const sql = `
     INSERT INTO DATA_SENSOR (id_sensor, temperature, amonia, ph) 
-    VALUES (?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?)
   `;
 
   db.query(sql, [id_sensor, temperature, amonia, ph], (err) => {
