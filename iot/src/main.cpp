@@ -172,19 +172,19 @@ void loop() {
     lcdTampil.print(ph_act, 2);
 
     // --- Kirim data ke MQTT ---
-String tempStr = String(tempC, 2);
-String phStr = String(ph_act, 2);
-String aqStr = String(mq135Value); // nilai integer, tidak perlu desimal
+    String tempStr = String(tempC, 2);
+    String phStr = String(ph_act, 2);
+    String aqStr = String(mq135Value); // nilai integer, tidak perlu desimal
 
-//client.publish("sensor/data/lele", tempStr.c_str(), true);
-//client.publish("sensor/data/lele", phStr.c_str(), true);
-//client.publish("sensor/data/lele", aqStr.c_str(), true);
+    //client.publish("sensor/data/lele", tempStr.c_str(), true);
+    //client.publish("sensor/data/lele", phStr.c_str(), true);
+    //client.publish("sensor/data/lele", aqStr.c_str(), true);
 
-String jsonData = "{";
-jsonData += "\"ph\":" + String(ph_act, 2) + ",";
-jsonData += "\"suhu\":" + String(tempC, 2) + ",";
-jsonData += "\"amonia\":" + String(mq135Value);
-jsonData += "}";
-client.publish("sensor/data/lele", jsonData.c_str(), true);
+    String jsonData = "{";
+    jsonData += "\"ph\":" + String(ph_act, 2) + ",";
+    jsonData += "\"suhu\":" + String(tempC, 2) + ",";
+    jsonData += "\"amonia\":" + String(mq135Value);
+    jsonData += "}";
+    client.publish("sensor/data/lele", jsonData.c_str(), true);
   }
 }
