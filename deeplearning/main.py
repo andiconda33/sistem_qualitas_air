@@ -11,7 +11,7 @@ def predict():
     temperature = data.get('temperature')
     ammonia = data.get('ammonia')
 
-    # Contoh logika prediksi, ganti dengan model deep learning Anda
+    # logika prediksi, ganti dengan model deep learning Anda
     if pH > 7 and temperature < 25 and ammonia < 0.5:
         status = 'Normal'
     elif pH < 7 or ammonia > 1:
