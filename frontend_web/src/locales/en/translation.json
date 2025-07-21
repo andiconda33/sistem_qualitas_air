@@ -1,0 +1,53 @@
+{
+  "title": "WATER QUALITY MONITORING INFORMATION SYSTEM",
+  "hi": "Hi, {{name}}",
+  "logout": "Logout",
+
+  "dashboard": {
+    "ph": "Water pH",
+    "temp": "Temperature",
+    "ammonia": "Ammonia Level",
+    "condition": "Water Condition",
+    "Normal": "Normal",
+    "Waspada": "Warning",
+    "Bahaya": "Danger"
+  },
+
+  "menuChart": {
+  "parameter": "Select Parameter",
+  "time": "Select Time",
+  "all": "All",
+  "ph": "Water pH",
+  "temperature": "Temperature (°C)",
+  "ammonia": "Ammonia (ppm)",
+  "hour": "Hourly",
+  "day": "Daily",
+  "week": "Weekly",
+  "month": "Monthly",
+  "graph": "Water Quality Chart"
+},
+
+"record": {
+  "title": "Water Quality Monitoring Data",
+    "hour": "Hour",
+    "ph": "pH",
+    "temp": "Temperature (°C)",
+    "ammonia": "Ammonia (ppm)",
+    "quality": "Quality",
+    "selectPeriod": "Select Period",
+    "perHour": "Per Hour",
+    "perDay": "Per Day",
+    "perWeek": "Per Week",
+    "perMonth": "Per Month",
+    "selectDate": "Select Date",
+    "noData": "No data for selected date"
+},
+
+"setting": {
+    "title": "Setting",
+    "display": "Display Preferences",
+    "language": "Language",
+    "save": "Save Settings",
+    "saved": "Settings saved successfully!"
+  }
+}

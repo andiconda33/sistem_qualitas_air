@@ -1,0 +1,18 @@
+.layout-container {
+  display: flex;
+  height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #f4f4f4;
+  margin-top: 100px; /* 👈 Tambahkan ini untuk memberi ruang di bawah header */
+}
+
+.content-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}

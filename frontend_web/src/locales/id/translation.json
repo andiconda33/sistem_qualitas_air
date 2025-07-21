@@ -1,0 +1,54 @@
+{
+  "title": "SISTEM INFORMASI PEMANTAUAN KUALITAS AIR",
+  "hi": "Hai, {{name}}",
+  "logout": "Keluar",
+
+  "dashboard": {
+    "ph": "pH Air",
+    "temp": "Suhu",
+    "ammonia": "Kadar Amonia",
+    "condition": "Kondisi Air",
+    "Normal": "Normal",
+    "Waspada": "Waspada",
+    "Bahaya": "Bahaya"
+  },
+
+  "menuChart": {
+    "parameter": "Pilih Parameter",
+    "time": "Pilih Waktu",
+    "all": "Semua",
+    "ph": "pH Air",
+    "temperature": "Suhu (°C)",
+    "ammonia": "Amonia (ppm)",
+    "graph": "Grafik Kualitas Air",
+    "hour": "Per Jam",
+    "day": "Per Hari",
+    "week": "Per Minggu",
+    "month": "Per Bulan"
+  },
+
+"record": {
+    "title": "Data Pemantauan Kualitas Air",
+    "hour": "Jam",
+    "ph": "pH Air",
+    "temp": "Suhu (°C)",
+    "ammonia": "Amonia (ppm)",
+    "quality": "Kualitas",
+    "selectPeriod": "Pilih Waktu",
+    "perHour": "Per Jam",
+    "perDay": "Per Hari",
+    "perWeek": "Per Minggu",
+    "perMonth": "Per Bulan",
+    "selectDate": "Pilih Tanggal",
+    "noData": "Tidak ada data untuk tanggal ini"
+  },
+
+"setting": {
+    "title": "Pengaturan Sistem",
+    "display": "Preferensi Tampilan",
+    "language": "Bahasa",
+    "save": "Simpan Pengaturan",
+    "saved": "Pengaturan berhasil disimpan!"
+  }
+}
+
