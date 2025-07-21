@@ -23,7 +23,7 @@ Sistem ini merupakan solusi pemantauan kualitas air secara real-time menggunakan
 
 ### 1. Perangkat IoT (ESP32)
 
-- Upload kode dari [`iot/src/ujisemuasensor.cpp`](iot/src/ujisemuasensor.cpp) ke ESP32 menggunakan PlatformIO atau Arduino IDE.
+- Upload kode dari [`iot/src/main_sipeka.cpp`](iot/src/main_sipeka.cpp) ke ESP32 menggunakan PlatformIO atau Arduino IDE.
 - Pastikan sensor terhubung sesuai pin yang ada di kode.
 
 ### 2. Backend (Flask API)
