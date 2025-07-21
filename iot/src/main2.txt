@@ -1,0 +1,125 @@
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
+
+// ---------- Konfigurasi WiFi & MQTT ----------
+const char* ssid        = "AndiHome";
+const char* password    = "12345678";
+const char* mqtt_server = "test.mosquitto.org";
+
+// ---------- Interval ----------
+const unsigned long READ_INTERVAL = 2000UL;                    // 2 detik
+const unsigned long PUB_INTERVAL  = 3UL * 60UL * 60UL * 1000UL; // 3 jam
+
+// ---------- Variabel global ----------
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+unsigned long lastRead = 0;
+unsigned long lastPub  = 0;
+
+// ------- DS18B20 -------
+#define ONE_WIRE_BUS 5
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensorDallas(&oneWire);
+
+// ------- MQ135 -------
+#define MQ135_PIN 35
+
+// ------- pH -------
+#define PH_SENSOR_PIN 34
+float calibration_value = 22.84;  
+int   buffer_arr[10];
+float ph_act;
+
+// ------- LCD -------
+LiquidCrystal_I2C lcdTampil(0x27, 16, 2);
+
+// ---------- Fungsi utilitas ----------
+void setup_wifi() { /* … sama seperti sebelumnya … */ }
+void callback(char* topic, byte* payload, unsigned int length) { /* … */ }
+void reconnect()   { /* … */ }
+
+// Baca semua sensor & tampilkan ke LCD + Serial
+void bacaSensor(float &tempC, int &mq135Val, float &pH) {
+    sensorDallas.requestTemperatures();
+  tempC = sensorDallas.getTempCByIndex(0);
+
+  mq135Val = analogRead(MQ135_PIN);
+
+  for (int i = 0; i < 10; i++) {
+    buffer_arr[i] = analogRead(PH_SENSOR_PIN);
+    delay(30);
+  }
+  // urut & rata‑ratakan tengah
+  for (int i = 0; i < 9; i++)
+    for (int j = i + 1; j < 10; j++)
+      if (buffer_arr[i] > buffer_arr[j]) {
+        int temp = buffer_arr[i];
+        buffer_arr[i] = buffer_arr[j];
+        buffer_arr[j] = temp;
+      }
+
+  unsigned long avg = 0;
+  for (int i = 2; i < 8; i++) avg += buffer_arr[i];
+  float volt = (float)avg * 3.3 / 4095.0 / 6.0;
+  pH = -5.70 * volt + calibration_value;
+
+  // Serial
+  Serial.printf("Temp: %.2f °C | MQ135: %d | pH: %.2f\n", tempC, mq135Val, pH);
+
+  // LCD
+  lcdTampil.clear();
+  lcdTampil.setCursor(0, 0);
+  lcdTampil.printf("T:%.1f%c AQ:%d", tempC, 223, mq135Val);
+  lcdTampil.setCursor(0, 1);
+  lcdTampil.printf("pH: %.2f", pH);
+}
+
+// Susun payload JSON
+String buatPayload(float tempC, int mq135Val, float pH) {
+  String j  = "{";
+  j += "\"ph\":"   + String(pH,     2) + ",";
+  j += "\"suhu\":" + String(tempC,  2) + ",";
+  j += "\"amonia\":"+ String(mq135Val);
+  j += "}";
+  return j;
+}
+
+// ---------- Setup ----------
+void setup() {
+  Serial.begin(115200);
+  sensorDallas.begin();
+  lcdTampil.init(); lcdTampil.backlight();
+
+  setup_wifi();
+  client.setServer(mqtt_server, 1883);
+  client.setCallback(callback);
+}
+
+// ---------- Loop ----------
+void loop() {
+  if (WiFi.status() != WL_CONNECTED) setup_wifi();
+  if (!client.connected()) reconnect();
+  client.loop();
+
+  unsigned long now = millis();
+
+  // ---- 1. Baca & tampilkan sensor tiap READ_INTERVAL ----
+  static float tempC; static int mq135Val; static float pH;
+  if (now - lastRead >= READ_INTERVAL) {
+    lastRead = now;
+    bacaSensor(tempC, mq135Val, pH);     // nilai ter‑update disimpan utk publish
+  }
+
+  // ---- 2. Publish MQTT tiap PUB_INTERVAL ----
+  if (now - lastPub >= PUB_INTERVAL) {
+    lastPub = now;
+    String payload = buatPayload(tempC, mq135Val, pH);
+    client.publish("sensor/data/lele", payload.c_str(), true);
+    Serial.println("===> MQTT publish (3 jam sekali)");
+  }
+}

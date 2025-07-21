@@ -1,0 +1,199 @@
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
+
+// --- Konfigurasi WiFi dan MQTT ---
+const char* ssid = "AndiHome";
+const char* password = "123456789";
+const char* mqtt_server = "test.mosquitto.org";
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+unsigned long lastMsg = 0;
+
+// --- Variabel untuk interval publish ---
+unsigned long lastMQTTPublish = 0;
+const unsigned long intervalPublish = 5UL * 60UL * 1000UL; // 5 menit = 300.000 ms
+
+//const unsigned long intervalPublish = 3UL * 60UL * 60UL * 1000UL; // 3 jam = 10.800.000 ms
+
+
+// --- Inisialisasi DS18B20 ---
+#define ONE_WIRE_BUS 5
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensorDallas(&oneWire);
+
+// --- Inisialisasi MQ135 ---
+#define MQ135_PIN 35  // Pin analog
+
+// --- Inisialisasi sensor pH ---
+#define PH_SENSOR_PIN 34
+float calibration_value = 22.84; // Sudah ditambahkan +1.5
+int buffer_arr[10];
+float ph_act;
+
+// --- Inisialisasi lcdTampil ---
+LiquidCrystal_I2C lcdTampil(0x27, 16, 2);  // Ubah alamat jika perlu
+
+// --- Fungsi koneksi WiFi ---
+void setup_wifi() {
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("\nWiFi connected");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+// --- Callback saat menerima pesan MQTT ---
+void callback(char* topic, byte* payload, unsigned int length) {
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  for (int i = 0; i < length; i++) {
+    Serial.print((char)payload[i]);
+  }
+  Serial.println();
+}
+
+// --- Reconnect MQTT jika terputus ---
+void reconnect() {
+  while (!client.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    String clientId = "IoT-";
+    clientId += String(random(0xffff), HEX);
+    if (client.connect(clientId.c_str())) {
+      Serial.println("connected");
+      client.publish("sensor/data/lele", "Connected");
+      client.subscribe("sensor/data/lele");
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      delay(5000);
+    }
+  }
+}
+
+// --- Setup awal ---
+void setup() {
+  Serial.begin(115200);
+  sensorDallas.begin();
+  lcdTampil.init();
+  lcdTampil.backlight();
+
+  lcdTampil.setCursor(0, 0);
+  lcdTampil.print("Suhu AQ pH Ready");
+  delay(2000);
+  lcdTampil.clear();
+
+  setup_wifi();
+  client.setServer(mqtt_server, 1883);
+  client.setCallback(callback);  
+}
+
+// --- Loop utama ---
+void loop() {
+  // Cek koneksi WiFi
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi disconnected, reconnecting...");
+    setup_wifi();
+  }
+
+  // MQTT client
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+
+  // mengatur data setiap detik
+  unsigned long now = millis();
+  if (now - lastMsg > 2000) {
+    lastMsg = now;
+
+    // --- Baca suhu ---
+    sensorDallas.requestTemperatures();
+    float tempC = sensorDallas.getTempCByIndex(0);
+
+    // --- Baca kualitas udara dari MQ135 ---
+    int mq135Value = analogRead(MQ135_PIN);
+
+    // --- Baca pH sensor ---
+    for (int i = 0; i < 10; i++) {
+      buffer_arr[i] = analogRead(PH_SENSOR_PIN);
+      delay(30);
+    }
+
+    // Urutkan data
+    for (int i = 0; i < 9; i++) {
+      for (int j = i + 1; j < 10; j++) {
+        if (buffer_arr[i] > buffer_arr[j]) {
+          int temp = buffer_arr[i];
+          buffer_arr[i] = buffer_arr[j];
+          buffer_arr[j] = temp;
+        }
+      }
+    }
+
+    // Hitung rata-rata nilai tengah
+    unsigned long avgval = 0;
+    for (int i = 2; i < 8; i++) avgval += buffer_arr[i];
+
+    float volt = (float)avgval * 3.3 / 4095.0 / 6.0;
+    ph_act = -5.70 * volt + calibration_value;
+
+    // --- Tampilkan di Serial Monitor ---
+    Serial.print("Temp: ");
+    Serial.print(tempC);
+    Serial.println(" *C");
+
+    Serial.print("MQ135: ");
+    Serial.println(mq135Value);
+
+    Serial.print("pH: ");
+    Serial.println(ph_act, 2);
+
+    // --- Tampilkan di lcdTampil ---
+    lcdTampil.clear();
+    lcdTampil.setCursor(0, 0);
+    lcdTampil.print("T:");
+    lcdTampil.print(tempC, 1);
+    lcdTampil.print((char)223); // simbol derajat
+    lcdTampil.print(" AQ:");
+    lcdTampil.print(mq135Value);
+
+    lcdTampil.setCursor(0, 1);
+    lcdTampil.print("pH: ");
+    lcdTampil.print(ph_act, 2);
+
+// --- Kirim data ke MQTT setiap 3 jam ---
+  if (now - lastMQTTPublish >= intervalPublish) {
+    lastMQTTPublish = now;
+
+    String tempStr = String(tempC, 2);
+    String phStr = String(ph_act, 2);
+    String aqStr = String(mq135Value); // nilai integer, tidak perlu desimal
+
+    String jsonData = "{";
+    jsonData += "\"ph\":" + String(ph_act, 2) + ",";
+    jsonData += "\"suhu\":" + String(tempC, 2) + ",";
+    jsonData += "\"amonia\":" + String(mq135Value);
+    jsonData += "}";
+
+    client.publish("sensor/data/lele", jsonData.c_str(), true);
+    Serial.println("Data MQTT dikirim (3 jam sekali)");
+  }
+  }
+}
